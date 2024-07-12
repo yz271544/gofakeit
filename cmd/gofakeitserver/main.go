@@ -6,6 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -48,7 +49,9 @@ func favicon(w http.ResponseWriter, r *http.Request) {
 }
 
 func list(w http.ResponseWriter, r *http.Request) {
-	ok(w, gofakeit.FuncLookups)
+	listData := gofakeit.FuncLookups
+	log.Printf("[%s] path: %s data: %v", r.Method, r.URL.Path, listData)
+	ok(w, listData)
 }
 
 func lookup(w http.ResponseWriter, r *http.Request) {
@@ -57,6 +60,9 @@ func lookup(w http.ResponseWriter, r *http.Request) {
 		lookupGet(w, r)
 		return
 	case http.MethodPost:
+	case http.MethodPut:
+	case http.MethodDelete:
+	case http.MethodPatch:
 		lookupPost(w, r)
 		return
 	}
@@ -88,6 +94,7 @@ func lookupGet(w http.ResponseWriter, r *http.Request) {
 		badrequest(w, err.Error())
 		return
 	}
+	log.Printf("[%s] path: %s data: %v", r.Method, r.URL.Path, data)
 
 	ok(w, data)
 }
@@ -154,8 +161,16 @@ func lookupPost(w http.ResponseWriter, r *http.Request) {
 		badrequest(w, err.Error())
 		return
 	}
+	var retData interface{}
+	if info.Display == "JSON" || info.Display == "XML" {
+		retData = string(data.([]byte))
+	} else {
+		retData = data
+	}
 
-	ok(w, data)
+	log.Printf("[%s] path: %s data: %v", r.Method, r.URL.Path, retData)
+
+	ok(w, retData)
 }
 
 func getInfoFromPath(r *http.Request) (*gofakeit.Info, error) {
