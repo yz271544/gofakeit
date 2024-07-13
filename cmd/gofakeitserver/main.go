@@ -59,10 +59,7 @@ func lookup(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		lookupGet(w, r)
 		return
-	case http.MethodPost:
-	case http.MethodPut:
-	case http.MethodDelete:
-	case http.MethodPatch:
+	case http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch:
 		lookupPost(w, r)
 		return
 	}
