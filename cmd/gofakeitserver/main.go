@@ -18,7 +18,7 @@ var port string
 var faker *gofakeit.Faker
 
 func init() {
-	flag.StringVar(&port, "port", "8080", "server port")
+	flag.StringVar(&port, "port", "8085", "server port")
 	faker = gofakeit.New(0)
 }
 
