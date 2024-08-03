@@ -40,6 +40,7 @@ func routes(mux *http.ServeMux) {
 	mux.HandleFunc("/favicon.ico", favicon)
 	mux.HandleFunc("/list", list)
 	mux.HandleFunc("/", lookup)
+	mux.HandleFunc("/openai-simulator", openAISimulatorHandler)
 }
 
 func favicon(w http.ResponseWriter, r *http.Request) {
