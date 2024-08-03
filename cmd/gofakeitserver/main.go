@@ -41,7 +41,7 @@ func routes(mux *http.ServeMux) {
 	mux.HandleFunc("/favicon.ico", favicon)
 	mux.HandleFunc("/list", list)
 	mux.HandleFunc("/", lookup)
-	mux.HandleFunc("/openai-simulator/chat/completions", ai.OpenAIChatCompletionsSimulatorHandler)
+	mux.HandleFunc("/openai-simulator/v1/chat/completions", ai.OpenAIChatCompletionsSimulatorHandler)
 }
 
 func favicon(w http.ResponseWriter, r *http.Request) {
