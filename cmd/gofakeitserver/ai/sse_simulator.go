@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package ai
 
 import (
 	"bytes"
@@ -40,7 +40,7 @@ type SSEClient struct {
 	message chan string
 }
 
-func sseHandler(w http.ResponseWriter, r *http.Request) {
+func SseHandler(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
@@ -87,7 +87,7 @@ func manageClients() {
 	}
 }
 
-func openAIHandler(w http.ResponseWriter, r *http.Request) {
+func OpenAIHandler(w http.ResponseWriter, r *http.Request) {
 	prompt := r.URL.Query().Get("prompt")
 	if prompt == "" {
 		http.Error(w, "Prompt is required", http.StatusBadRequest)
@@ -150,7 +150,7 @@ func callOpenAI(prompt string) (string, error) {
 	return text, nil
 }
 
-func openAISimulatorHandler(w http.ResponseWriter, r *http.Request) {
+func OpenAISimulatorHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Error openai api only support POST method", http.StatusMethodNotAllowed)
 		return

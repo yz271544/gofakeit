@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v7"
+	"github.com/brianvoe/gofakeit/v7/cmd/gofakeitserver/ai"
 )
 
 var port string
@@ -40,7 +41,7 @@ func routes(mux *http.ServeMux) {
 	mux.HandleFunc("/favicon.ico", favicon)
 	mux.HandleFunc("/list", list)
 	mux.HandleFunc("/", lookup)
-	mux.HandleFunc("/openai-simulator", openAISimulatorHandler)
+	mux.HandleFunc("/openai-simulator", ai.OpenAISimulatorHandler)
 }
 
 func favicon(w http.ResponseWriter, r *http.Request) {
