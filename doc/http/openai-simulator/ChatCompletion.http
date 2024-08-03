@@ -1,5 +1,5 @@
 ### POST openai-simulator
-POST http://localhost:8085/openai-simulator
+POST http://localhost:8085/openai-simulator/chat/completions
 Content-Type: application/json
 
 {

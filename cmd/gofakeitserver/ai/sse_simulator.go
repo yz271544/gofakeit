@@ -150,7 +150,7 @@ func callOpenAI(prompt string) (string, error) {
 	return text, nil
 }
 
-func OpenAISimulatorHandler(w http.ResponseWriter, r *http.Request) {
+func OpenAIChatCompletionsSimulatorHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Error openai api only support POST method", http.StatusMethodNotAllowed)
 		return
