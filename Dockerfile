@@ -5,6 +5,7 @@ MAINTAINER Hu Lyndon <huzhengyang@gridsum.com>
 
 WORKDIR /code
 COPY . .
+RUN go mod tidy
 RUN go build -v -o /usr/local/bin/gofakeitserver -ldflags "-w -s" \
 ./cmd/gofakeitserver/main.go
 
