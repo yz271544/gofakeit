@@ -1,0 +1,44 @@
+### POST openai-simulator
+POST http://localhost:8085/openai-simulator/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "gpt-3.5-turbo",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    }
+  ],
+  "max_tokens": 1
+}
+
+### Response
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 04 Aug 2024 09:56:47 GMT
+Content-Length: 306
+
+{
+  "id": "4b4d8525-dd21-47ed-b4c9-054707e49df5",
+  "object": "chat.completion",
+  "created": 1722765407,
+  "model": "gpt-3.5-turbo",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello"
+      },
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 8,
+    "completion_tokens": 1,
+    "total_tokens": 9
+  },
+  "system_fingerprint": ""
+}
+###

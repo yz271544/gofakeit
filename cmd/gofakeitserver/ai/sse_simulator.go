@@ -165,6 +165,56 @@ func OpenAIChatCompletionsSimulatorHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if req.Stream {
+		Stream(w, req, err)
+	} else {
+		if SayHi(w, req) {
+			return
+		}
+	}
+
+}
+
+func SayHi(w http.ResponseWriter, req *openai.ChatCompletionRequest) bool {
+	chatResp := openai.ChatCompletionResponse{
+		ID:      gofakeit.UUID(),
+		Object:  "chat.completion",
+		Created: time.Now().Unix(),
+		Model:   req.Model,
+		Choices: []openai.ChatCompletionChoice{
+			{
+				Index: 0,
+				Message: openai.ChatCompletionMessage{
+					Role:    "assistant",
+					Content: "Hello",
+				},
+				FinishReason: "length",
+			},
+		},
+		Usage: openai.Usage{
+			PromptTokens:     8,
+			CompletionTokens: 1,
+			TotalTokens:      9,
+		},
+		SystemFingerprint: "",
+	}
+	data, err := json.Marshal(chatResp)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return true
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing response error: %v", err), http.StatusInternalServerError)
+		return true
+	}
+	return false
+}
+
+func Stream(w http.ResponseWriter, req *openai.ChatCompletionRequest, err error) {
 	randomInt := rand.Intn(50) + 1
 	for i := range randomInt {
 		chatResp, err := callOpenAISimulator(*req, i)
@@ -202,7 +252,6 @@ func OpenAIChatCompletionsSimulatorHandler(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Flushing not supported", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func callOpenAISimulator(req openai.ChatCompletionRequest, i int) (openai.ChatCompletionStreamResponse, error) {
@@ -212,7 +261,7 @@ func callOpenAISimulator(req openai.ChatCompletionRequest, i int) (openai.ChatCo
 
 	resp := openai.ChatCompletionStreamResponse{
 		ID:      "example-id",
-		Object:  "example-object",
+		Object:  "chat.completion",
 		Created: time.Now().Unix(),
 		Model:   req.Model,
 		Choices: []openai.ChatCompletionStreamChoice{
