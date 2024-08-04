@@ -184,18 +184,17 @@ func OpenAIChatCompletionsSimulatorHandler(w http.ResponseWriter, r *http.Reques
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 
-		//_, err = w.Write([]byte(fmt.Sprintf("data: %s\n\n", data)))
-		_, err = w.Write([]byte(fmt.Sprintf("%s\n\n", data)))
+		_, err = w.Write([]byte(fmt.Sprintf("data: %s\n\n", data)))
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error writing response error: %v", err), http.StatusInternalServerError)
 			return
 		}
 	}
 
-	/*_, err = w.Write([]byte(fmt.Sprintf("data: %s\n\n", "[DONE]")))
+	_, err = w.Write([]byte(fmt.Sprintf("data: %s\n\n", "[DONE]")))
 	if err != nil {
 		http.Error(w, fmt.Sprintf("output [DONE] Error writing response error: %v", err), http.StatusInternalServerError)
-	}*/
+	}
 
 	if fluster, ok := w.(http.Flusher); ok {
 		fluster.Flush()
