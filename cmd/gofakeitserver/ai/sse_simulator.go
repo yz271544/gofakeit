@@ -256,8 +256,63 @@ func Stream(w http.ResponseWriter, req *openai.ChatCompletionRequest, err error)
 
 func callOpenAISimulator(req openai.ChatCompletionRequest, i int) (openai.ChatCompletionStreamResponse, error) {
 
-	car := gofakeit.Car()
-	content := fmt.Sprintf("[%d] %s-%s-%s-%s-%s", car.Year, car.Model, car.Type, car.Brand, car.Fuel, car.Transmission)
+	fakeitFunc := []func() string{
+		gofakeit.Name,
+		gofakeit.Username,
+		gofakeit.UUID,
+		gofakeit.Email,
+		gofakeit.Gender,
+		gofakeit.Hobby,
+		gofakeit.Phone,
+		gofakeit.PhoneFormatted,
+		gofakeit.AdjectiveDemonstrative,
+		gofakeit.Adjective,
+		gofakeit.Adverb,
+		gofakeit.AdjectiveDescriptive,
+		gofakeit.AdjectiveIndefinite,
+		gofakeit.AdjectiveInterrogative,
+		gofakeit.AdjectivePossessive,
+		gofakeit.AdjectiveProper,
+		gofakeit.AdjectiveQuantitative,
+		gofakeit.Animal,
+		gofakeit.AnimalType,
+		gofakeit.FarmAnimal,
+		gofakeit.MinecraftAnimal,
+		gofakeit.Bird,
+		gofakeit.BitcoinAddress,
+		gofakeit.FileMimeType,
+		gofakeit.Fruit,
+		gofakeit.BeerAlcohol,
+		gofakeit.BeerHop,
+		gofakeit.BeerBlg,
+		gofakeit.BeerIbu,
+		gofakeit.BookGenre,
+		gofakeit.TimeZone,
+		gofakeit.Language,
+		gofakeit.WeekDay,
+		gofakeit.MonthString,
+		gofakeit.MovieName,
+		gofakeit.Cat,
+		gofakeit.CarModel,
+		gofakeit.CarType,
+		gofakeit.CarMaker,
+		gofakeit.CarModel,
+		gofakeit.CarFuelType,
+		gofakeit.CarTransmissionType,
+		gofakeit.CreditCardCvv,
+		gofakeit.CreditCardExp,
+		gofakeit.CreditCardType,
+		gofakeit.Verb,
+		gofakeit.Vegetable,
+		gofakeit.VerbAction,
+		gofakeit.VerbHelping,
+		gofakeit.VerbIntransitive,
+		gofakeit.VerbLinking,
+		gofakeit.VerbTransitive,
+	}
+
+	totalFunc := len(fakeitFunc)
+	funcNum := rand.Intn(totalFunc)
 
 	resp := openai.ChatCompletionStreamResponse{
 		ID:      "example-id",
@@ -268,7 +323,8 @@ func callOpenAISimulator(req openai.ChatCompletionRequest, i int) (openai.ChatCo
 			{
 				Index: i,
 				Delta: openai.ChatCompletionStreamChoiceDelta{
-					Content: fmt.Sprintf("This is message %d: content: %s", i, content),
+					Content: fakeitFunc[funcNum](),
+					Role:    "assistant",
 				},
 				FinishReason: "length",
 			},

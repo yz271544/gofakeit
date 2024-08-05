@@ -55,5 +55,4 @@ func Test_openai_req(t *testing.T) {
 
 	marshal, _ := json.Marshal(req)
 	fmt.Printf("curl -N -X POST -d '%s' http://localhost:8085/openai-simulator\n", string(marshal))
-
 }
