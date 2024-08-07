@@ -166,7 +166,7 @@ func OpenAIChatCompletionsSimulatorHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	if req.Stream {
-		Stream(w, req, err)
+		Stream2(w, req, err)
 	} else {
 		if SayHi(w, req) {
 			return
@@ -381,6 +381,167 @@ func callOpenAISimulator(req openai.ChatCompletionRequest, i int) (openai.ChatCo
 			CompletionTokens: 20,
 			TotalTokens:      30,
 		},
+	}
+
+	return resp, nil
+}
+
+func Stream2(w http.ResponseWriter, req *openai.ChatCompletionRequest, err error) {
+	randomInt := rand.Intn(50) + 1
+	for i := range randomInt {
+		hasFirstRole := false
+		if i == 0 {
+			hasFirstRole = true
+		}
+		hasLastRole := false
+		if i+1 == randomInt {
+			hasLastRole = true
+		}
+
+		chatResp, err := callOpenAISimulator2(*req, hasFirstRole, hasLastRole)
+		if err != nil {
+			http.Error(w, "Error calling OpenAI API", http.StatusInternalServerError)
+			return
+		}
+
+		data, err := json.Marshal(chatResp)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			http.Error(w, "Error encoding response", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+
+		_, err = w.Write([]byte(fmt.Sprintf("data: %s\n\n", data)))
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing response error: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	_, err = w.Write([]byte(fmt.Sprintf("data: %s\n\n", "[DONE]")))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("output [DONE] Error writing response error: %v", err), http.StatusInternalServerError)
+	}
+
+	if fluster, ok := w.(http.Flusher); ok {
+		fluster.Flush()
+	} else {
+		http.Error(w, "Flushing not supported", http.StatusInternalServerError)
+		return
+	}
+}
+
+func callOpenAISimulator2(req openai.ChatCompletionRequest, hasFirstRole, hasLastRole bool) (openai.ChatCompletionStreamResponse, error) {
+	role := ""
+	if hasFirstRole || hasLastRole {
+		role = "assistant"
+	}
+
+	resp := openai.ChatCompletionStreamResponse{
+		ID:      "example-id",
+		Object:  "chat.completion",
+		Created: time.Now().Unix(),
+		Model:   req.Model,
+		Choices: []openai.ChatCompletionStreamChoice{
+			{
+				Index: 1,
+				Delta: openai.ChatCompletionStreamChoiceDelta{
+					Content: "I am",
+				},
+				FinishReason: "length",
+			},
+			{
+				Index: 2,
+				Delta: openai.ChatCompletionStreamChoiceDelta{
+					Content: " an intelligent",
+				},
+				FinishReason: "length",
+			},
+			{
+				Index: 3,
+				Delta: openai.ChatCompletionStreamChoiceDelta{
+					Content: " AI system, ",
+				},
+				FinishReason: "length",
+			},
+			{
+				Index: 4,
+				Delta: openai.ChatCompletionStreamChoiceDelta{
+					Content: "ready to serve you ",
+				},
+				FinishReason: "length",
+			}, {
+				Index: 5,
+				Delta: openai.ChatCompletionStreamChoiceDelta{
+					Content: "at any time.",
+				},
+				FinishReason: "length",
+			},
+		},
+		SystemFingerprint: "example-fingerprint",
+		PromptAnnotations: []openai.PromptAnnotation{
+			{
+				PromptIndex: 0,
+				ContentFilterResults: openai.ContentFilterResults{
+					Hate: openai.Hate{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+					SelfHarm: openai.SelfHarm{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+					Sexual: openai.Sexual{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+					Violence: openai.Violence{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+				},
+			},
+		},
+		PromptFilterResults: []openai.PromptFilterResult{
+			{
+				Index: 0,
+				ContentFilterResults: openai.ContentFilterResults{
+					Hate: openai.Hate{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+					SelfHarm: openai.SelfHarm{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+					Sexual: openai.Sexual{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+					Violence: openai.Violence{
+						Filtered: gofakeit.Bool(),
+						Severity: "",
+					},
+				},
+			},
+		},
+		Usage: &openai.Usage{
+			PromptTokens:     10,
+			CompletionTokens: 20,
+			TotalTokens:      30,
+		},
+	}
+
+	if hasFirstRole {
+		resp.Choices[0].Delta.Role = role
+	}
+
+	if hasLastRole {
+		resp.Choices[len(resp.Choices)-1].Delta.Role = role
 	}
 
 	return resp, nil
