@@ -1,0 +1,5 @@
+services:
+  go-fakeit:
+    image: yz271544/gofakeit-server:v1.0.1
+    ports:
+      - "18484:8080"

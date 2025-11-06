@@ -3,6 +3,9 @@ FROM golang:1.22.4-alpine as builder
 
 MAINTAINER Hu Lyndon <huzhengyang@gridsum.com>
 
+RUN export GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,https://goproxy.io,direct
+RUN export GO111MODULE="on"
+
 WORKDIR /code
 COPY . .
 RUN go mod tidy
