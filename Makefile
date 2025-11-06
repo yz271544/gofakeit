@@ -10,7 +10,7 @@ build-server:
 
 .PHONY: images
 images:
-	docker build --progress=plain -t yz271544/gofakeit-server:${IMAGE_TAG} -f Dockerfile .
+	docker build -t yz271544/gofakeit-server:${IMAGE_TAG} -f Dockerfile .
 
 .PHONY: docker-run
 docker-run:

@@ -3,8 +3,10 @@ FROM golang:1.24-alpine as builder
 
 MAINTAINER Hu Lyndon <huzhengyang@gridsum.com>
 
-RUN export GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,https://goproxy.io,direct
-RUN export GO111MODULE="on"
+ENV GO111MODULE=on \
+    GOPROXY=https://goproxy.cn|https://mirrors.aliyun.com/goproxy/|https://goproxy.io|direct \
+    GOPRIVATE=*.gitlab.com,*.gitee.com,*.github.com \
+    CGO_ENABLED=0
 
 WORKDIR /code
 COPY . .
