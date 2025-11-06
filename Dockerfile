@@ -18,5 +18,5 @@ FROM alpine:3.22.0
 MAINTAINER Hu Lyndon <huzhengyang@gridsum.com>
 
 COPY --from=builder usr/local/bin/gofakeitserver /usr/local/bin/gofakeitserver
-EXPOSE 8080
+EXPOSE 8085
 CMD ["gofakeitserver"]
