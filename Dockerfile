@@ -1,5 +1,5 @@
 # build stage
-FROM golang:1.22.4-alpine as builder
+FROM golang:1.24-alpine as builder
 
 MAINTAINER Hu Lyndon <huzhengyang@gridsum.com>
 
@@ -12,7 +12,7 @@ RUN go mod tidy
 RUN go build -v -o /usr/local/bin/gofakeitserver -ldflags "-w -s" cmd/gofakeitserver/main.go
 
 # final stage
-FROM alpine:3.20
+FROM alpine:3.22.0
 MAINTAINER Hu Lyndon <huzhengyang@gridsum.com>
 
 COPY --from=builder usr/local/bin/gofakeitserver /usr/local/bin/gofakeitserver
