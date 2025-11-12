@@ -1,0 +1,13 @@
+### POST bool
+POST http://{{host}}:{{port}}/bool
+Content-Type: application/json
+
+### Response
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 12 Nov 2025 03:21:14 GMT
+Content-Length: 4
+
+true
+
+###

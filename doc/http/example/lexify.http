@@ -1,0 +1,12 @@
+### GET lexify
+GET http://{{host}}:{{port}}/lexify?str=abc
+Content-Type: application/json
+
+### Response
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 12 Nov 2025 03:19:51 GMT
+Content-Length: 3
+
+abc
+###

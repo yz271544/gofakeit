@@ -1,0 +1,19 @@
+### GET car
+GET http://{{host}}:{{port}}/car?id=5
+Content-Type: application/json
+
+### Response
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Wed, 12 Nov 2025 03:20:29 GMT
+Content-Length: 128
+
+{
+  "type": "Passenger car heavy",
+  "fuel": "Gasoline",
+  "transmission": "Automatic",
+  "brand": "Datsun",
+  "model": "Sportage 2wd",
+  "year": 2004
+}
+###
