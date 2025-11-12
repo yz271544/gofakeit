@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand/v2"
 	"net/url"
@@ -304,4 +305,35 @@ func TestPostLookupWithParamsArray(t *testing.T) {
 	if len(response) != 6 {
 		t.Fatalf("Was expecting a array length of 6 got %d", len(response))
 	}
+}
+
+func TestStringToJson(t *testing.T) {
+	data := "{\n  \"t\": 209,\n  \"h\": 76\n}"
+	marshal, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(string(marshal))
+}
+
+func TestStringToJson3(t *testing.T) {
+	// 带转义的原始 JSON 字符串
+	data := "{\n  \"t\": 209,\n  \"h\": 76\n}"
+
+	// 1. 解析原始字符串为 map（自动剔除转义符号）
+	var jsonData map[string]interface{}
+	err := json.Unmarshal([]byte(data), &jsonData)
+	if err != nil {
+		t.Fatal("解析 JSON 失败：", err)
+	}
+
+	// 2. 重新序列化为标准 JSON（无转义，可选带缩进）
+	// 若要紧凑格式（无换行空格），用 json.Marshal(jsonData)
+	result, err := json.MarshalIndent(jsonData, "", "  ")
+	if err != nil {
+		t.Fatal("序列化 JSON 失败：", err)
+	}
+
+	// 直接输出标准 JSON（无转义符号）
+	fmt.Println(string(result))
 }

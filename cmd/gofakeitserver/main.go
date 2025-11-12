@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"flag"
 	"fmt"
@@ -161,14 +162,28 @@ func lookupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var retData interface{}
-	if info.Display == "JSON" || info.Display == "XML" {
+	if info.Display == "JSON" {
+		b, ok := data.([]byte)
+		if !ok {
+			badrequest(w, "invalid JSON data")
+			return
+		}
+		// 使用 json.RawMessage 可让 json.Encoder 不对内容再加引号/转义
+		retData = json.RawMessage(b)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	} else if info.Display == "XML" {
 		retData = string(data.([]byte))
+		xmlMaral, err := xml.Marshal(data)
+		if err != nil {
+			badrequest(w, err.Error())
+		}
+		retData = xmlMaral
+		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	} else {
 		retData = data
 	}
 
 	log.Printf("[%s] path: %s data: %v", r.Method, r.URL.Path, retData)
-
 	ok(w, retData)
 }
 
@@ -199,31 +214,36 @@ func encodeResponse(v any) []byte {
 func ok(w http.ResponseWriter, data any) {
 	var resp []byte
 	d := reflect.ValueOf(data)
-	switch d.Kind() {
-	case reflect.Bool:
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		resp = []byte(fmt.Sprintf("%v", data))
-	case reflect.Int, reflect.Int8, reflect.Int32, reflect.Int64:
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		resp = []byte(fmt.Sprintf("%v", data))
-	case reflect.Uint, reflect.Uint8, reflect.Uint32, reflect.Uint64:
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		resp = []byte(fmt.Sprintf("%v", data))
-	case reflect.Float32, reflect.Float64:
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		resp = []byte(fmt.Sprintf("%v", data))
-	case reflect.String:
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		resp = []byte((data).(string))
-	case reflect.Map:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	getContentType := w.Header().Get("Content-Type")
+	if getContentType != "" {
 		resp = encodeResponse(data)
-	case reflect.Slice:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		resp = encodeResponse(data)
-	default:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		resp = encodeResponse(data)
+	} else {
+		switch d.Kind() {
+		case reflect.Bool:
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			resp = []byte(fmt.Sprintf("%v", data))
+		case reflect.Int, reflect.Int8, reflect.Int32, reflect.Int64:
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			resp = []byte(fmt.Sprintf("%v", data))
+		case reflect.Uint, reflect.Uint8, reflect.Uint32, reflect.Uint64:
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			resp = []byte(fmt.Sprintf("%v", data))
+		case reflect.Float32, reflect.Float64:
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			resp = []byte(fmt.Sprintf("%v", data))
+		case reflect.String:
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			resp = []byte((data).(string))
+		case reflect.Map:
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			resp = encodeResponse(data)
+		case reflect.Slice:
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			resp = encodeResponse(data)
+		default:
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			resp = encodeResponse(data)
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -240,4 +260,24 @@ func notfound(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("404 not found"))
+}
+
+func marshalIndentJson(data string) (string, error) {
+
+	// 1. 解析原始字符串为 map（自动剔除转义符号）
+	var jsonData map[string]interface{}
+	err := json.Unmarshal([]byte(data), &jsonData)
+	if err != nil {
+		return "", err
+	}
+
+	// 2. 重新序列化为标准 JSON（无转义，可选带缩进）
+	// 若要紧凑格式（无换行空格），用 json.Marshal(jsonData)
+	result, err := json.MarshalIndent(jsonData, "", "  ")
+	if err != nil {
+		return "", err
+	}
+
+	// 直接输出标准 JSON（无转义符号）
+	return string(result), nil
 }
